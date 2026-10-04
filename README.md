@@ -67,12 +67,7 @@ Early but usable. It has been tested on a real phone (arm64): capture, cropping,
 
 ### Roadmap
 
-1. **Better edge detection.** `tool/edge_prototype.py` is a line-based detector (Hough lines, scored by edge support plus a "no text just outside the page" rule). It handles pages with one faint side. Next steps: tune it on real photos, then port it into `lib/services/scanner.dart` next to the current contour-based detector.
-2. Live edge preview in the camera view, and auto-capture when the page is steady.
-3. A language picker for OCR, with downloadable `traineddata` files.
-4. Searchable PDF export (an invisible OCR text layer).
-5. Rotate pages; import existing PDFs.
-6. Release signing and F-Droid metadata.
+See [TODO.md](TODO.md) for planned features and open tasks.
 
 ## Development notes
 
