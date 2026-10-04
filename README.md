@@ -1,6 +1,6 @@
 # DocScanner
 
-A free and open-source document scanner for Android, similar to CamScanner, built with Flutter.
+A free and open-source document scanner for Android, built with Flutter.
 It has no ads, no account and no tracking, and every step runs on the device.
 
 ## Features
