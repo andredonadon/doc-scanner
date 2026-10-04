@@ -8,7 +8,8 @@ Ideas and planned work, roughly in priority order. Effort estimates are rough.
   - [ ] Collect real original photos where it fails into `test/photos/` (git-ignored) and check them with `test/real_photos_test.dart`.
   - [ ] Tune the line-based prototype `tool/edge_prototype.py` on those photos.
   - [ ] Port it to `lib/services/scanner.dart` alongside the contour-based detector, and keep the best-scoring result.
-- [ ] **Searchable PDF:** embed the OCR text as an invisible layer, so the text in exported PDFs can be selected and searched. *~1 day*
+- [x] **Searchable PDF:** embed the OCR text as an invisible layer, so the text in exported PDFs can be selected and searched.
+  - [ ] Non-Latin-1 scripts need an embedded Unicode font (they are currently replaced by `?` in the text layer).
 - [ ] **Rotate page** (90° steps) in the page viewer and editor. *few hours*
 - [ ] **Apply filter to all pages** of a document. *few hours*
 - [ ] **PDF size options** (small / medium / original) for upload limits on web forms. *few hours*

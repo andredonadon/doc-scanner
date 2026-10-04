@@ -21,7 +21,7 @@ class Storage extends ChangeNotifier {
     final root = (await getApplicationDocumentsDirectory()).path;
     final db = await openDatabase(
       p.join(root, 'scans.db'),
-      version: 1,
+      version: 2,
       onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: (db, _) async {
         await db.execute('''
@@ -40,9 +40,17 @@ class Storage extends ChangeNotifier {
             original_path TEXT NOT NULL,
             corners TEXT NOT NULL,
             filter TEXT NOT NULL,
-            ocr_text TEXT
+            ocr_text TEXT,
+            ocr_layout TEXT
           )''');
         await db.execute('CREATE INDEX pages_doc ON pages(document_id, position)');
+      },
+      onUpgrade: (db, from, _) async {
+        if (from < 2) {
+          // Word positions for searchable PDFs. Existing pages get them when
+          // OCR re-runs at startup (see pagesWithoutText).
+          await db.execute('ALTER TABLE pages ADD COLUMN ocr_layout TEXT');
+        }
       },
     );
     return Storage._(db, root);
@@ -117,9 +125,10 @@ class Storage extends ChangeNotifier {
     return [for (final r in rows) _pageFromRow(r)];
   }
 
-  /// Pages whose OCR never completed (e.g. the app was closed mid-queue).
+  /// Pages whose OCR never completed (e.g. the app was closed mid-queue) or
+  /// that were recognized before word positions were stored.
   Future<List<ScanPage>> pagesWithoutText() async {
-    final rows = await _db.query('pages', where: 'ocr_text IS NULL', orderBy: 'id');
+    final rows = await _db.query('pages', where: 'ocr_layout IS NULL', orderBy: 'id');
     return [for (final r in rows) _pageFromRow(r)];
   }
 
@@ -137,6 +146,7 @@ class Storage extends ChangeNotifier {
         corners: ScanPage.decodeCorners(r['corners'] as String),
         filter: ScanFilter.values.byName(r['filter'] as String),
         ocrText: r['ocr_text'] as String?,
+        ocrLayout: r['ocr_layout'] == null ? null : OcrLayout.decode(r['ocr_layout'] as String),
       );
 
   Future<ScanPage> addPage({
@@ -182,6 +192,7 @@ class Storage extends ChangeNotifier {
           'corners': ScanPage.encodeCorners(corners),
           'filter': filter.name,
           'ocr_text': null,
+          'ocr_layout': null,
         },
         where: 'id = ?',
         whereArgs: [page.id]);
@@ -190,12 +201,14 @@ class Storage extends ChangeNotifier {
       ..imagePath = newImagePath
       ..corners = corners
       ..filter = filter
-      ..ocrText = null;
+      ..ocrText = null
+      ..ocrLayout = null;
     await _touch(page.documentId);
   }
 
-  Future<void> setOcrText(int pageId, String text) async {
-    await _db.update('pages', {'ocr_text': text}, where: 'id = ?', whereArgs: [pageId]);
+  Future<void> setOcrResult(int pageId, String text, OcrLayout layout) async {
+    await _db.update('pages', {'ocr_text': text, 'ocr_layout': layout.encode()},
+        where: 'id = ?', whereArgs: [pageId]);
     notifyListeners();
   }
 

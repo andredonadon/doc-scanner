@@ -45,9 +45,9 @@ class OcrQueue extends ChangeNotifier {
         _pending.remove(id); // Deleted while waiting.
         continue;
       }
-      String? text;
+      Map<Object?, Object?>? result;
       try {
-        text = await _channel.invokeMethod<String>('recognize', {
+        result = await _channel.invokeMethod<Map<Object?, Object?>>('recognize', {
           'imagePath': page.imagePath,
           'dataPath': _dataPath ??= await _installTessdata(),
           'language': language,
@@ -60,7 +60,10 @@ class OcrQueue extends ChangeNotifier {
         _queue.add(id); // Re-edited meanwhile; recognize the new image.
         continue;
       }
-      if (current != null && text != null) await _storage.setOcrText(id, text.trim());
+      if (current != null && result != null) {
+        await _storage.setOcrResult(
+            id, (result['text'] as String).trim(), OcrLayout.fromNative(result));
+      }
       _pending.remove(id);
       notifyListeners();
     }

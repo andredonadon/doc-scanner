@@ -10,7 +10,7 @@ It has no ads, no account and no tracking, and every step runs on the device.
 - **Filters:** Original, Enhanced (removes shadows and whitens the paper), Grayscale and Black & White.
 - **OCR:** recognizes text in the background so you can copy, share or search it.
 - **Library:** documents are stored locally. You can rename them, delete them, reorder and re-edit pages, and search by title or page text.
-- **Export:** share a document as a PDF, as images or as plain text.
+- **Export:** share a document as a **searchable PDF** (the recognized text is an invisible layer, so you can search and select it), as images or as plain text.
 
 ## Open-source stack
 
